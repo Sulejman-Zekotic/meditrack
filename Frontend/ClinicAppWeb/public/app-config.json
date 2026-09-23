@@ -1,6 +1,5 @@
 {
-  "apiUrl": "https://meditrack-hrgrfvghd3g7gser.northeurope-01.azurewebsites.net/api",
-  "appName": "MediTrack",
+   "apiUrl": "https://meditrack-api.runasp.net/api",  "appName": "MediTrack",
   "clinicName": "MediTrack Clinical Operations",
   "supportEmail": "meditrackmt@gmail.com"
 }
