@@ -163,31 +163,43 @@ namespace ClinicApp.Infrastructure.Services.Implementations
 
         public async Task<object> AddUserAsync(AddUserDto dto, string adminUsername)
         {
-            var tempPassword = PasswordHelper.GenerateTemporaryPassword();
-            var token = Guid.NewGuid().ToString();
-
-            var user = new User
-            {
-                Username = dto.Username,
-                Email = dto.Email,
-                Role = dto.Role,
-                PasswordHash = PasswordHelper.HashPassword(tempPassword),
-                MustChangePassword = true,
-                PasswordResetTokenHash = PasswordHelper.HashPassword(token),
-                PasswordResetTokenExpiryTime = DateTime.UtcNow.AddMinutes(30),
-                PasswordResetRequestedAt = DateTime.UtcNow
-            };
-
-            using var transaction = _context.Database.BeginTransaction();
-
-            _context.Users.Add(user);
-            _context.SaveChanges();
-
             var frontendBaseUrl = RequireSetting("App:FrontendBaseUrl").TrimEnd('/');
-            var link = $"{frontendBaseUrl}/reset-password?token={Uri.EscapeDataString(token)}";
+            User user = null!;
 
-            await _emailService.SendPasswordSetupEmailAsync(user.Email!, user.Username, link);
-            transaction.Commit();
+            // SQL Server je podesen sa EnableRetryOnFailure, pa rucna transakcija
+            // mora ici kroz execution strategy (inace EF baca gresku).
+            var strategy = _context.Database.CreateExecutionStrategy();
+
+            await strategy.ExecuteAsync(async () =>
+            {
+                _context.ChangeTracker.Clear();
+
+                var tempPassword = PasswordHelper.GenerateTemporaryPassword();
+                var token = Guid.NewGuid().ToString();
+
+                user = new User
+                {
+                    Username = dto.Username,
+                    Email = dto.Email,
+                    Role = dto.Role,
+                    PasswordHash = PasswordHelper.HashPassword(tempPassword),
+                    MustChangePassword = true,
+                    PasswordResetTokenHash = PasswordHelper.HashPassword(token),
+                    PasswordResetTokenExpiryTime = DateTime.UtcNow.AddMinutes(30),
+                    PasswordResetRequestedAt = DateTime.UtcNow
+                };
+
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                var link = $"{frontendBaseUrl}/reset-password?token={Uri.EscapeDataString(token)}";
+
+                // Ako slanje maila ne uspije, transakcija se ne commita i korisnik se ne kreira.
+                await _emailService.SendPasswordSetupEmailAsync(user.Email!, user.Username, link);
+                await transaction.CommitAsync();
+            });
 
             return new
             {

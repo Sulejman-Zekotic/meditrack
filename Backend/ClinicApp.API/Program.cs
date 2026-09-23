@@ -14,6 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
+// Lokalne postavke za hosting (connection string, JWT kljuc, CORS...).
+// appsettings.Local.json je u .gitignore i NE ide na GitHub.
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false);
+
 // ------------------------------------------------------
 // CONFIG VALIDATION
 // ------------------------------------------------------

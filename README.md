@@ -8,7 +8,11 @@ The application allows administrators and healthcare workers to manage medicatio
 
 # Live Demo
 
-https://lively-sky-051d74603.7.azurestaticapps.net
+**App:** https://meditrackmt.netlify.app
+
+**API (Swagger):** https://meditrack-api.runasp.net/swagger
+
+> The API runs on a free plan, so the first request after a period of inactivity can take a few seconds.
 
 ---
 
@@ -63,10 +67,11 @@ Password: Clinic123!
 - Mobile optimized interface
 
 ## Deployment
-- Azure App Service
-- Azure Static Web Apps
-- SQL Server database
-- CI/CD workflows
+- Frontend: Netlify (automatic deploy from GitHub on every push)
+- Backend API: MonsterASP.NET (IIS, .NET 9)
+- Database: SQL Server (MonsterASP.NET), schema created by EF Core migrations on startup
+- Email: Brevo SMTP relay (password setup and reset links)
+- Previously deployed on Azure App Service and Azure Static Web Apps
 
 ---
 
@@ -86,8 +91,9 @@ Password: Clinic123!
 - Angular Material
 
 ## Cloud & Tools
-- Azure
-- GitHub Actions
+- Netlify
+- MonsterASP.NET
+- Brevo SMTP
 - Swagger
 - VS Code
 

@@ -23,4 +23,9 @@
     <ProjectReference Include="..\ClinicApp.Infrastructure\ClinicApp.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Lokalne hosting postavke se kopiraju pri publishu, ali nisu u repou -->
+    <Content Update="appsettings.Local.json" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
