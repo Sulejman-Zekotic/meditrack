@@ -1,0 +1,13 @@
+[build]
+  base = "Frontend/ClinicAppWeb"
+  command = "npm run build"
+  publish = "dist/ClinicApp/browser"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Angular rute (refresh na /medications i sl. ne daje 404)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
